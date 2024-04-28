@@ -13,9 +13,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
 
-import static com.libra.utils.Constants.BEIGE_COLOR;
-import static com.libra.utils.Constants.DARKER_BEIGE_COLOR;
+import static com.libra.utils.Constants.WALNUT_COLOR;
 import static com.libra.utils.Constants.DARKER_WALNUT_COLOR;
+import static com.libra.utils.Constants.DARKER_BEIGE_COLOR;
 import static com.libra.utils.ExceptionMessages.INVALID_PIECE_PARENT;
 
 public class EventsListenerDecorator {
@@ -129,11 +129,11 @@ public class EventsListenerDecorator {
     }
 
     private Color getTileBackgroundColorOnInit(com.libra.Color color) {
-        return color.equals(com.libra.Color.WHITE) ? new Color(Constants.WALNUT_COLOR) : new Color(BEIGE_COLOR);
+        return color.equals(com.libra.Color.WHITE) ? new Color(Constants.BEIGE_COLOR) : new Color(WALNUT_COLOR);
     }
 
     private Color getTileBackgroundColorOnShowingMoves(com.libra.Color color) {
-        return color.equals(com.libra.Color.WHITE) ? new Color(DARKER_WALNUT_COLOR) : new Color(DARKER_BEIGE_COLOR);
+        return color.equals(com.libra.Color.WHITE) ? new Color(DARKER_BEIGE_COLOR) : new Color(DARKER_WALNUT_COLOR);
     }
 
     private void clearFocusedColorsOnTheBoard() {

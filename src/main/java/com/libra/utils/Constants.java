@@ -14,11 +14,15 @@ public class Constants {
     public static final int ROWS_GAP = 0;
     public static final int PIECE_WIDTH = 80;
     public static final int PIECE_HEIGHT = 80;
-    public static final int BEIGE_COLOR = 0xb58863;
-    public static final int WALNUT_COLOR = 0xf0d9b5;
-    public static final int DARKER_BEIGE_COLOR = 0xde9768;
-    public static final int DARKER_WALNUT_COLOR = 0xc3b091;
+    public static final int WALNUT_COLOR = 0xb58863;
+    public static final int BEIGE_COLOR = 0xf0d9b5;
+    public static final int DARKER_WALNUT_COLOR = 0xde9768;
+    public static final int DARKER_BEIGE_COLOR = 0xc1ad82;
     public static final int FIRST_INDEX = 0;
+    public static final int FIRST_ELEMENT = 0;
+    public static final int SECOND_ELEMENT = 1;
+    public static final int THIRD_ELEMENT = 2;
+    public static final int FOURTH_ELEMENT = 3;
 
     /**
      * String constants.

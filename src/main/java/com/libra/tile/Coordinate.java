@@ -6,7 +6,10 @@ import java.util.Objects;
 
 import static com.libra.tile.ColumnIndex.A;
 import static com.libra.tile.ColumnIndex.H;
-import static com.libra.tile.ColumnIndex.UNDEFINED;
+import static com.libra.tile.Direction.DOWN;
+import static com.libra.tile.Direction.LEFT;
+import static com.libra.tile.Direction.RIGHT;
+import static com.libra.tile.Direction.UP;
 import static com.libra.tile.RowIndex.EIGHT;
 import static com.libra.tile.RowIndex.ONE;
 import static com.libra.utils.Constants.FIRST_INDEX;
@@ -48,6 +51,38 @@ public record Coordinate(ColumnIndex columnIndex, RowIndex rowIndex) {
 
     public boolean equalsByColumnOrRowIndex(Coordinate coordinate) {
         return rowIndex == coordinate.rowIndex || columnIndex == coordinate.columnIndex;
+    }
+
+    public Coordinate movePieceAccordingToDirection(Color color, Direction direction) {
+        if (direction == UP) {
+            return up(color);
+        }
+
+        if (direction == LEFT) {
+            return left(color);
+        }
+
+        if (direction == RIGHT) {
+            return right(color);
+        }
+
+        return down(color);
+    }
+
+    public static Coordinate getStopCoordinate(Direction direction) {
+        if (direction == UP) {
+            return new Coordinate(null, RowIndex.EIGHT);
+        }
+
+        if (direction == DOWN) {
+            return new Coordinate(null, RowIndex.ONE);
+        }
+
+        if (direction == LEFT) {
+            return new Coordinate(ColumnIndex.A, null);
+        }
+
+        return new Coordinate(ColumnIndex.H, null);
     }
 
     private Coordinate down() {

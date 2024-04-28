@@ -10,7 +10,7 @@ import java.util.List;
 
 import static com.libra.tile.Availability.FREE;
 import static com.libra.tile.Availability.TAKEN;
-import static com.libra.utils.Constants.WALNUT_COLOR;
+import static com.libra.utils.Constants.BEIGE_COLOR;
 
 public final class Tile extends JPanel {
 
@@ -84,9 +84,13 @@ public final class Tile extends JPanel {
         return availability == TAKEN && pieceLabel.getPieceColor() != color;
     }
 
+    public boolean isAvailableToTakeOrToAttack(Color color) {
+        return isTileAvailable() || isAvailableForAttack(color);
+    }
+
     private java.awt.Color getTileBackgroundColorOnInit() {
         return color.equals(com.libra.Color.BLACK)
-            ? new java.awt.Color(Constants.BEIGE_COLOR)
-            : new java.awt.Color(WALNUT_COLOR);
+            ? new java.awt.Color(Constants.WALNUT_COLOR)
+            : new java.awt.Color(BEIGE_COLOR);
     }
 }
