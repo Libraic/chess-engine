@@ -1,5 +1,6 @@
 package com.libra.ui;
 
+import com.libra.Color;
 import com.libra.piece.Piece;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -28,6 +29,10 @@ public class PieceLabel extends JLabel {
 
     public Piece getPiece() {
         return piece;
+    }
+
+    public Color getPieceColor() {
+        return piece.getColor();
     }
 
     private String getImagePath(Piece piece) {

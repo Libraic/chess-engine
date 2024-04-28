@@ -42,15 +42,11 @@ public abstract class Piece {
         return rank;
     }
 
-    public List<Coordinate> getPossibleMoves() {
-        return color.equals(WHITE) ? getPossibleMovesForWhite() : getPossibleMovesForBlack();
-    }
-
     public Coordinate getCoordinate() {
         return coordinate;
     }
 
-    protected abstract List<Coordinate> getPossibleMovesForWhite();
-
-    protected abstract List<Coordinate> getPossibleMovesForBlack();
+    public void setCoordinate(Coordinate coordinate) {
+        this.coordinate = coordinate;
+    }
 }

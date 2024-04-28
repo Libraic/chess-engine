@@ -3,10 +3,6 @@ package com.libra.piece;
 import com.libra.Color;
 import com.libra.tile.Coordinate;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.libra.Color.WHITE;
 import static com.libra.piece.Rank.PAWN;
 
 /**
@@ -21,28 +17,12 @@ public final class Pawn extends Piece {
     }
 
     @Override
-    public List<Coordinate> getPossibleMoves() {
-        return color.equals(WHITE) ? getPossibleMovesForWhite() : getPossibleMovesForBlack();
+    public void setCoordinate(Coordinate coordinate) {
+        super.setCoordinate(coordinate);
+        wasFirstMoveMade = true;
     }
 
-    protected List<Coordinate> getPossibleMovesForWhite() {
-        List<Coordinate> possibleMoves = new ArrayList<>();
-        Coordinate firstMove = coordinate.up();
-        possibleMoves.add(firstMove);
-        if (!wasFirstMoveMade) {
-            possibleMoves.add(firstMove.up());
-        }
-        return possibleMoves;
-    }
-
-
-    protected List<Coordinate> getPossibleMovesForBlack() {
-        List<Coordinate> possibleMoves = new ArrayList<>();
-        Coordinate firstMove = coordinate.down();
-        possibleMoves.add(firstMove);
-        if (!wasFirstMoveMade) {
-            possibleMoves.add(firstMove.down());
-        }
-        return possibleMoves;
+    public boolean isWasFirstMoveMade() {
+        return !wasFirstMoveMade;
     }
 }

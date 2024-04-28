@@ -8,7 +8,6 @@ import javax.swing.JFrame;
 import javax.swing.border.MatteBorder;
 
 import java.awt.GridLayout;
-import java.util.ArrayList;
 
 import static com.libra.utils.Constants.BORDER_THICKNESS;
 import static com.libra.utils.Constants.COLUMNS_GAP;
@@ -23,11 +22,11 @@ import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 public class GameWindow {
 
     private final Board board;
-    private final PieceEventsListenerDecorator pieceEventsListenerDecorator;
+    private final EventsListenerDecorator eventsListenerDecorator;
 
     public GameWindow(Board board) {
         this.board = board;
-        pieceEventsListenerDecorator = new PieceEventsListenerDecorator(board);
+        eventsListenerDecorator = new EventsListenerDecorator(board);
     }
 
     public void show() {
@@ -45,8 +44,8 @@ public class GameWindow {
         gameWindow.setLayout(new GridLayout(NUMBER_OF_ROWS, NUMBER_OF_COLUMNS, ROWS_GAP, COLUMNS_GAP));
 
         for (Tile tile : board.getTiles().values()) {
-            pieceEventsListenerDecorator.createMouseListenerForPiece(tile.getPieceLabel());
-            pieceEventsListenerDecorator.createMouseListenerForTile(tile, gameWindow);
+            eventsListenerDecorator.createMouseListenerForPiece(tile.getPieceLabel(), gameWindow);
+            eventsListenerDecorator.createMouseListenerForTile(tile, gameWindow);
             gameWindow.add(tile);
         }
         gameWindow.setVisible(true);

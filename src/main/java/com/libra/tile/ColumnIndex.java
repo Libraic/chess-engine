@@ -16,7 +16,8 @@ public enum ColumnIndex {
     E,
     F,
     G,
-    H;
+    H,
+    UNDEFINED;
 
     public static ColumnIndex getColumnIndexByColumnLiteral(char columnLiteral) {
         if (columnLiteral == 'A') {

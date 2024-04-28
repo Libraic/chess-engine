@@ -2,31 +2,36 @@ package com.libra.ui;
 
 import com.libra.board.Board;
 import com.libra.exception.ChessEngineException;
+import com.libra.move.MoveStrategyContext;
+import com.libra.tile.Coordinate;
 import com.libra.tile.Tile;
 import com.libra.utils.Constants;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.List;
 
-import static com.libra.tile.Availability.FREE;
 import static com.libra.utils.Constants.BEIGE_COLOR;
 import static com.libra.utils.Constants.DARKER_BEIGE_COLOR;
 import static com.libra.utils.Constants.DARKER_WALNUT_COLOR;
 import static com.libra.utils.ExceptionMessages.INVALID_PIECE_PARENT;
 
-public class PieceEventsListenerDecorator {
+public class EventsListenerDecorator {
 
     private final Board board;
+    private final MoveStrategyContext moveStrategyContext;
     private PieceLabel currentlyActivePiece;
     private Tile currentlyActiveTile;
+    private List<Coordinate> currentlyActivePiecePossibleMoves;
 
-    public PieceEventsListenerDecorator(Board board) {
+    public EventsListenerDecorator(Board board) {
         this.board = board;
+        moveStrategyContext = new MoveStrategyContext();
     }
 
-    public void createMouseListenerForPiece(PieceLabel pieceLabel) {
+    public void createMouseListenerForPiece(PieceLabel pieceLabel, JFrame gameWindow) {
         pieceLabel.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -34,7 +39,32 @@ public class PieceEventsListenerDecorator {
                     throw new ChessEngineException(INVALID_PIECE_PARENT);
                 }
 
+                if (pieceLabel.getPiece().getColor() != board.getTurn()) {
+                    if (!currentlyActivePiecePossibleMoves.contains(tile.getCoordinate())) {
+                        return;
+                    }
+                    currentlyActiveTile.removePieceLabel();
+                    currentlyActiveTile = null;
+                    currentlyActivePiece.getPiece().setCoordinate(tile.getCoordinate());
+                    tile.removePieceLabel();
+                    tile.addPieceLabel(currentlyActivePiece);
+                    currentlyActivePiece = null;
+                    clearFocusedColorsOnTheBoard();
+                    board.changeTurn();
+                    currentlyActivePiecePossibleMoves.clear();
+                    gameWindow.repaint();
+                    return;
+                }
+
                 clearFocusedColorsOnTheBoard();
+                currentlyActivePiecePossibleMoves = moveStrategyContext
+                    .getMoveStrategy(pieceLabel.getPiece().getRank())
+                    .getPossibleMoves(pieceLabel.getPiece(), board);
+
+                for (Coordinate move : currentlyActivePiecePossibleMoves) {
+                    Tile potentialTile = board.getTileByCoordinate(move);
+                    potentialTile.setBackground(getTileBackgroundColorOnShowingMoves(potentialTile.getColor()));
+                }
                 tile.setBackground(getTileBackgroundColorOnShowingMoves(tile.getColor()));
                 currentlyActivePiece = pieceLabel;
                 currentlyActiveTile = tile;
@@ -64,12 +94,16 @@ public class PieceEventsListenerDecorator {
         tile.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (tile.getAvailability().equals(FREE) && currentlyActivePiece != null) {
+                if (tile.isTileCoordinatesInPossibleMoves(currentlyActivePiecePossibleMoves) &&
+                    tile.isTileAvailable(currentlyActivePiece)
+                ) {
                     currentlyActiveTile.removePieceLabel();
                     currentlyActiveTile = null;
+                    currentlyActivePiece.getPiece().setCoordinate(tile.getCoordinate());
                     tile.addPieceLabel(currentlyActivePiece);
                     currentlyActivePiece = null;
                     clearFocusedColorsOnTheBoard();
+                    board.changeTurn();
                     gameWindow.repaint();
                 }
             }

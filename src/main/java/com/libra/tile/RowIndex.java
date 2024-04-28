@@ -15,7 +15,8 @@ public enum RowIndex {
     FIVE(5),
     SIX(6),
     SEVEN(7),
-    EIGHT(8);
+    EIGHT(8),
+    UNDEFINED(-1);
 
     private final int numericalPosition;
 
@@ -44,6 +45,8 @@ public enum RowIndex {
             return SEVEN;
         } else if (numericalPosition == 8) {
             return EIGHT;
+        } else if (numericalPosition == -1) {
+            return UNDEFINED;
         } else {
             throw new ChessEngineException(INVALID_ROW_INDEX);
         }

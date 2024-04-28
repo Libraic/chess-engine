@@ -1,9 +1,12 @@
 package com.libra.tile;
 
+import com.libra.Color;
+
 import java.util.Objects;
 
 import static com.libra.tile.ColumnIndex.A;
 import static com.libra.tile.ColumnIndex.H;
+import static com.libra.tile.ColumnIndex.UNDEFINED;
 import static com.libra.tile.RowIndex.EIGHT;
 import static com.libra.tile.RowIndex.ONE;
 import static com.libra.utils.Constants.FIRST_INDEX;
@@ -15,7 +18,23 @@ import static com.libra.utils.Constants.FIRST_INDEX;
  */
 public record Coordinate(ColumnIndex columnIndex, RowIndex rowIndex) {
 
-    public Coordinate up() {
+    public Coordinate up(Color color) {
+        return color.equals(Color.WHITE) ? up() : down();
+    }
+
+    public Coordinate down(Color color) {
+        return color.equals(Color.WHITE) ? down() : up();
+    }
+
+    public Coordinate left(Color color) {
+        return color.equals(Color.WHITE) ? left() : right();
+    }
+
+    public Coordinate right(Color color) {
+        return color.equals(Color.WHITE) ? right() : left();
+    }
+
+    private Coordinate up() {
         if (this.rowIndex().equals(EIGHT)) {
             return new Coordinate(columnIndex, rowIndex);
         }
@@ -27,7 +46,11 @@ public record Coordinate(ColumnIndex columnIndex, RowIndex rowIndex) {
         );
     }
 
-    public Coordinate down() {
+    public boolean equalsByColumnOrRowIndex(Coordinate coordinate) {
+        return rowIndex == coordinate.rowIndex || columnIndex == coordinate.columnIndex;
+    }
+
+    private Coordinate down() {
         if (this.rowIndex().equals(ONE)) {
             return new Coordinate(columnIndex, rowIndex);
         }
@@ -39,7 +62,7 @@ public record Coordinate(ColumnIndex columnIndex, RowIndex rowIndex) {
         );
     }
 
-    public Coordinate left() {
+    private Coordinate left() {
         if (this.columnIndex().equals(A)) {
             return new Coordinate(columnIndex, rowIndex);
         }
@@ -52,7 +75,7 @@ public record Coordinate(ColumnIndex columnIndex, RowIndex rowIndex) {
         );
     }
 
-    public Coordinate right() {
+    private Coordinate right() {
         if (this.columnIndex().equals(H)) {
             return new Coordinate(columnIndex, rowIndex);
         }
