@@ -53,7 +53,7 @@ public class BishopMoveStrategy implements MoveStrategy {
                 directions.get(SECOND_ELEMENT)
             );
 
-            if (diagonalMove.equals(linearMove)) {
+            if (diagonalMove.equals(linearMove) || linearMove.equals(currentCoordinate)) {
                 break;
             }
 

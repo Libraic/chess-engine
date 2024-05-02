@@ -312,8 +312,8 @@ public class Board {
         );
 
         turn = WHITE;
-        whiteKingPosition = new Coordinate(E, EIGHT);
-        blackKingPosition = new Coordinate(E, ONE);
+        whiteKingPosition = new Coordinate(E, ONE);
+        blackKingPosition = new Coordinate(E, EIGHT);
     }
 
     public Map<Coordinate, Tile> getTiles() {
@@ -341,6 +341,6 @@ public class Board {
     }
 
     public Coordinate getKingPosition(Color color) {
-        return color == WHITE ? whiteKingPosition : blackKingPosition;
+        return color == WHITE ? blackKingPosition : whiteKingPosition;
     }
 }

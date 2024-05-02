@@ -18,6 +18,7 @@ public class Constants {
     public static final int BEIGE_COLOR = 0xf0d9b5;
     public static final int DARKER_WALNUT_COLOR = 0xde9768;
     public static final int DARKER_BEIGE_COLOR = 0xc1ad82;
+    public static final int RED_COLOR = 0xee6b6e;
     public static final int FIRST_INDEX = 0;
     public static final int FIRST_ELEMENT = 0;
     public static final int SECOND_ELEMENT = 1;

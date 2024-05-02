@@ -2,32 +2,34 @@ package com.libra.ui;
 
 import com.libra.exception.ChessEngineException;
 import com.libra.move.MoveStrategyContext;
+import com.libra.piece.Rank;
 import com.libra.service.BoardService;
+import com.libra.service.ColorService;
 import com.libra.tile.Coordinate;
 import com.libra.tile.Tile;
-import com.libra.utils.Constants;
 
 import javax.swing.JFrame;
-import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
 
-import static com.libra.utils.Constants.WALNUT_COLOR;
-import static com.libra.utils.Constants.DARKER_WALNUT_COLOR;
-import static com.libra.utils.Constants.DARKER_BEIGE_COLOR;
 import static com.libra.utils.ExceptionMessages.INVALID_PIECE_PARENT;
 
 public class EventsListenerDecorator {
 
     private final MoveStrategyContext moveStrategyContext;
+    private final BoardService boardService;
+    private final ColorService colorService;
     private PieceLabel currentlyActivePiece;
     private Tile currentlyActiveTile;
     private List<Coordinate> currentlyActivePiecePossibleMoves;
-    private final BoardService boardService;
 
-    public EventsListenerDecorator(BoardService boardService) {
+    public EventsListenerDecorator(
+        BoardService boardService,
+        ColorService colorService
+    ) {
         this.boardService = boardService;
+        this.colorService = colorService;
         moveStrategyContext = new MoveStrategyContext(boardService);
     }
 
@@ -39,38 +41,11 @@ public class EventsListenerDecorator {
                     throw new ChessEngineException(INVALID_PIECE_PARENT);
                 }
 
-                // Logic that checks if we have selected the proper piece to move
-                // If that is not the case, a set of actions is done
                 if (pieceLabel.getPiece().getColor() != boardService.getTurn()) {
-                    // We can click on a piece of another color only if we are going to capture it
-                    if (!currentlyActivePiecePossibleMoves.contains(tile.getCoordinate())) {
-                        return;
-                    }
-                    currentlyActiveTile.removePieceLabel();
-                    currentlyActiveTile = null;
-                    currentlyActivePiece.getPiece().setCoordinate(tile.getCoordinate());
-                    tile.removePieceLabel();
-                    tile.addPieceLabel(currentlyActivePiece);
-                    currentlyActivePiece = null;
-                    clearFocusedColorsOnTheBoard();
-                    boardService.changeTurn();
-                    currentlyActivePiecePossibleMoves.clear();
-                    gameWindow.repaint();
-                    return;
+                    handleCaptureMove(tile, gameWindow);
+                } else {
+                    handlePieceSelection(pieceLabel, tile);
                 }
-
-                clearFocusedColorsOnTheBoard();
-                currentlyActivePiecePossibleMoves = moveStrategyContext
-                    .getMoveStrategy(pieceLabel.getPiece().getRank())
-                    .getPossibleMoves(pieceLabel.getPiece());
-
-                for (Coordinate move : currentlyActivePiecePossibleMoves) {
-                    Tile potentialTile = boardService.getTileByCoordinate(move);
-                    potentialTile.setBackground(getTileBackgroundColorOnShowingMoves(potentialTile.getColor()));
-                }
-                tile.setBackground(getTileBackgroundColorOnShowingMoves(tile.getColor()));
-                currentlyActivePiece = pieceLabel;
-                currentlyActiveTile = tile;
             }
 
             @Override
@@ -103,9 +78,16 @@ public class EventsListenerDecorator {
                     currentlyActiveTile.removePieceLabel();
                     currentlyActiveTile = null;
                     currentlyActivePiece.getPiece().setCoordinate(tile.getCoordinate());
+                    if (currentlyActivePiece.getPiece().getRank() == Rank.KING) {
+                        boardService.setKingPositionBasedOnColor(
+                            tile.getCoordinate(),
+                            currentlyActivePiece.getPieceColor()
+                        );
+                    }
+                    handleCheck();
                     tile.addPieceLabel(currentlyActivePiece);
                     currentlyActivePiece = null;
-                    clearFocusedColorsOnTheBoard();
+                    colorService.clearFocusedColorsOnTheBoard(boardService.getTiles());
                     boardService.changeTurn();
                     gameWindow.repaint();
                 }
@@ -131,17 +113,45 @@ public class EventsListenerDecorator {
         });
     }
 
-    private Color getTileBackgroundColorOnInit(com.libra.Color color) {
-        return color.equals(com.libra.Color.WHITE) ? new Color(Constants.BEIGE_COLOR) : new Color(WALNUT_COLOR);
-    }
-
-    private Color getTileBackgroundColorOnShowingMoves(com.libra.Color color) {
-        return color.equals(com.libra.Color.WHITE) ? new Color(DARKER_BEIGE_COLOR) : new Color(DARKER_WALNUT_COLOR);
-    }
-
-    private void clearFocusedColorsOnTheBoard() {
-        for (Tile tile : boardService.getTiles()) {
-            tile.setBackground(getTileBackgroundColorOnInit(tile.getColor()));
+    private void handleCaptureMove(Tile tile, JFrame gameWindow) {
+        if (!currentlyActivePiecePossibleMoves.contains(tile.getCoordinate())) {
+            return;
         }
+        currentlyActiveTile.removePieceLabel();
+        currentlyActiveTile = null;
+        currentlyActivePiece.getPiece().setCoordinate(tile.getCoordinate());
+        tile.removePieceLabel();
+        tile.addPieceLabel(currentlyActivePiece);
+        currentlyActivePiece = null;
+        colorService.clearFocusedColorsOnTheBoard(boardService.getTiles());
+        boardService.changeTurn();
+        currentlyActivePiecePossibleMoves.clear();
+        gameWindow.repaint();
+    }
+
+    private void handlePieceSelection(PieceLabel pieceLabel, Tile tile) {
+        colorService.clearFocusedColorsOnTheBoard(boardService.getTiles());
+        currentlyActivePiecePossibleMoves = moveStrategyContext
+            .getMoveStrategy(pieceLabel.getPiece().getRank())
+            .getPossibleMoves(pieceLabel.getPiece());
+        for (Coordinate move : currentlyActivePiecePossibleMoves) {
+            Tile potentialTile = boardService.getTileByCoordinate(move);
+            potentialTile.setBackground(colorService.getTileBackgroundColorOnShowingMoves(potentialTile.getColor()));
+        }
+        tile.setBackground(colorService.getTileBackgroundColorOnShowingMoves(tile.getColor()));
+        currentlyActivePiece = pieceLabel;
+        currentlyActiveTile = tile;
+    }
+
+    private void handleCheck() {
+        List<Coordinate> potentialFutureMoves = moveStrategyContext
+            .getMoveStrategy(currentlyActivePiece.getPiece().getRank())
+            .getPossibleMoves(currentlyActivePiece.getPiece());
+        Coordinate kingPosition = boardService.getKingPositionBasedOnColor(currentlyActivePiece.getPieceColor());
+        Tile tile = boardService.getTileByCoordinate(kingPosition);
+        tile.setBackground(colorService.getTileBackgroundColorOnCheckOrClear(
+            potentialFutureMoves.contains(kingPosition),
+            tile.getColor())
+        );
     }
 }

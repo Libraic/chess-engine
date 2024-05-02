@@ -86,7 +86,7 @@ public class QueenMoveStrategy implements MoveStrategy {
                 directions.get(SECOND_ELEMENT)
             );
 
-            if (linearMove.equals(diagonalMove)) {
+            if (diagonalMove.equals(linearMove) || linearMove.equals(currentCoordinate)) {
                 break;
             }
 

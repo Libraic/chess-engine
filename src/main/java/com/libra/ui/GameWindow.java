@@ -1,6 +1,7 @@
 package com.libra.ui;
 
 import com.libra.service.BoardService;
+import com.libra.service.ColorService;
 import com.libra.tile.Tile;
 
 import javax.swing.BorderFactory;
@@ -23,9 +24,11 @@ public class GameWindow {
 
     private final EventsListenerDecorator eventsListenerDecorator;
     private final BoardService boardService;
-    public GameWindow(BoardService boardService) {
+    private final ColorService colorService;
+    public GameWindow(BoardService boardService, ColorService colorService) {
         this.boardService = boardService;
-        eventsListenerDecorator = new EventsListenerDecorator(boardService);
+        this.colorService = colorService;
+        eventsListenerDecorator = new EventsListenerDecorator(boardService, colorService);
     }
 
     public void show() {

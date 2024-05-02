@@ -30,4 +30,12 @@ public class BoardService {
     public Collection<Tile> getTiles() {
         return board.getTiles().values();
     }
+
+    public Coordinate getKingPositionBasedOnColor(Color color) {
+        return board.getKingPosition(color);
+    }
+
+    public void setKingPositionBasedOnColor(Coordinate coordinate, Color color) {
+        board.setKingPosition(coordinate, color);
+    }
 }
