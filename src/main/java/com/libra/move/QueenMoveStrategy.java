@@ -1,8 +1,8 @@
 package com.libra.move;
 
 import com.libra.Color;
-import com.libra.board.Board;
 import com.libra.piece.Piece;
+import com.libra.service.BoardService;
 import com.libra.tile.Coordinate;
 import com.libra.tile.Direction;
 import com.libra.tile.Tile;
@@ -21,24 +21,29 @@ import static com.libra.utils.Constants.SECOND_ELEMENT;
 
 public class QueenMoveStrategy implements MoveStrategy {
 
+    private final BoardService boardService;
+
+    public QueenMoveStrategy(BoardService boardService) {
+        this.boardService = boardService;
+    }
+
     // TODO: Review Performance
     @Override
-    public List<Coordinate> getPossibleMoves(Piece piece, Board board) {
+    public List<Coordinate> getPossibleMoves(Piece piece) {
         Set<Coordinate> moves = new HashSet<>();
-        moves.addAll(getCoordinatesFromOneDiagonalDirection(piece, board, List.of(UP, RIGHT)));
-        moves.addAll(getCoordinatesFromOneDiagonalDirection(piece, board, List.of(UP, LEFT)));
-        moves.addAll(getCoordinatesFromOneDiagonalDirection(piece, board, List.of(DOWN, RIGHT)));
-        moves.addAll(getCoordinatesFromOneDiagonalDirection(piece, board, List.of(DOWN, LEFT)));
-        moves.addAll(getCoordinatesFromOneLinearDirection(piece, board, UP));
-        moves.addAll(getCoordinatesFromOneLinearDirection(piece, board, DOWN));
-        moves.addAll(getCoordinatesFromOneLinearDirection(piece, board, LEFT));
-        moves.addAll(getCoordinatesFromOneLinearDirection(piece, board, RIGHT));
+        moves.addAll(getCoordinatesFromOneDiagonalDirection(piece, List.of(UP, RIGHT)));
+        moves.addAll(getCoordinatesFromOneDiagonalDirection(piece, List.of(UP, LEFT)));
+        moves.addAll(getCoordinatesFromOneDiagonalDirection(piece, List.of(DOWN, RIGHT)));
+        moves.addAll(getCoordinatesFromOneDiagonalDirection(piece, List.of(DOWN, LEFT)));
+        moves.addAll(getCoordinatesFromOneLinearDirection(piece, UP));
+        moves.addAll(getCoordinatesFromOneLinearDirection(piece, DOWN));
+        moves.addAll(getCoordinatesFromOneLinearDirection(piece, LEFT));
+        moves.addAll(getCoordinatesFromOneLinearDirection(piece, RIGHT));
         return moves.stream().toList();
     }
 
     private Set<Coordinate> getCoordinatesFromOneLinearDirection(
         Piece piece,
-        Board board,
         Direction direction
     ) {
         Set<Coordinate> moves = new HashSet<>();
@@ -46,7 +51,7 @@ public class QueenMoveStrategy implements MoveStrategy {
         Coordinate stopCoordinate = Coordinate.getStopCoordinate(direction);
         while (true) {
             currentCoordinate = currentCoordinate.movePieceAccordingToDirection(piece.getColor(), direction);
-            Tile currentTile = board.getTileByCoordinate(currentCoordinate);
+            Tile currentTile = boardService.getTileByCoordinate(currentCoordinate);
             if (stopCoordinate.equalsByColumnOrRowIndex(currentCoordinate) ||
                 currentTile.isAvailableForAttack(piece.getColor())
             ) {
@@ -66,7 +71,6 @@ public class QueenMoveStrategy implements MoveStrategy {
 
     private Set<Coordinate> getCoordinatesFromOneDiagonalDirection(
         Piece piece,
-        Board board,
         List<Direction> directions
     ) {
         Set<Coordinate> moves = new HashSet<>();
@@ -82,7 +86,11 @@ public class QueenMoveStrategy implements MoveStrategy {
                 directions.get(SECOND_ELEMENT)
             );
 
-            Tile diagonalTile = board.getTileByCoordinate(diagonalMove);
+            if (linearMove.equals(diagonalMove)) {
+                break;
+            }
+
+            Tile diagonalTile = boardService.getTileByCoordinate(diagonalMove);
             if (diagonalTile.isAvailableForAttack(color)) {
                 moves.add(diagonalMove);
                 break;

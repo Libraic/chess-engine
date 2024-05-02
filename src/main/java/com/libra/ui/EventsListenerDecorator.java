@@ -1,8 +1,8 @@
 package com.libra.ui;
 
-import com.libra.board.Board;
 import com.libra.exception.ChessEngineException;
 import com.libra.move.MoveStrategyContext;
+import com.libra.service.BoardService;
 import com.libra.tile.Coordinate;
 import com.libra.tile.Tile;
 import com.libra.utils.Constants;
@@ -20,15 +20,15 @@ import static com.libra.utils.ExceptionMessages.INVALID_PIECE_PARENT;
 
 public class EventsListenerDecorator {
 
-    private final Board board;
     private final MoveStrategyContext moveStrategyContext;
     private PieceLabel currentlyActivePiece;
     private Tile currentlyActiveTile;
     private List<Coordinate> currentlyActivePiecePossibleMoves;
+    private final BoardService boardService;
 
-    public EventsListenerDecorator(Board board) {
-        this.board = board;
-        moveStrategyContext = new MoveStrategyContext();
+    public EventsListenerDecorator(BoardService boardService) {
+        this.boardService = boardService;
+        moveStrategyContext = new MoveStrategyContext(boardService);
     }
 
     public void createMouseListenerForPiece(PieceLabel pieceLabel, JFrame gameWindow) {
@@ -39,7 +39,10 @@ public class EventsListenerDecorator {
                     throw new ChessEngineException(INVALID_PIECE_PARENT);
                 }
 
-                if (pieceLabel.getPiece().getColor() != board.getTurn()) {
+                // Logic that checks if we have selected the proper piece to move
+                // If that is not the case, a set of actions is done
+                if (pieceLabel.getPiece().getColor() != boardService.getTurn()) {
+                    // We can click on a piece of another color only if we are going to capture it
                     if (!currentlyActivePiecePossibleMoves.contains(tile.getCoordinate())) {
                         return;
                     }
@@ -50,7 +53,7 @@ public class EventsListenerDecorator {
                     tile.addPieceLabel(currentlyActivePiece);
                     currentlyActivePiece = null;
                     clearFocusedColorsOnTheBoard();
-                    board.changeTurn();
+                    boardService.changeTurn();
                     currentlyActivePiecePossibleMoves.clear();
                     gameWindow.repaint();
                     return;
@@ -59,10 +62,10 @@ public class EventsListenerDecorator {
                 clearFocusedColorsOnTheBoard();
                 currentlyActivePiecePossibleMoves = moveStrategyContext
                     .getMoveStrategy(pieceLabel.getPiece().getRank())
-                    .getPossibleMoves(pieceLabel.getPiece(), board);
+                    .getPossibleMoves(pieceLabel.getPiece());
 
                 for (Coordinate move : currentlyActivePiecePossibleMoves) {
-                    Tile potentialTile = board.getTileByCoordinate(move);
+                    Tile potentialTile = boardService.getTileByCoordinate(move);
                     potentialTile.setBackground(getTileBackgroundColorOnShowingMoves(potentialTile.getColor()));
                 }
                 tile.setBackground(getTileBackgroundColorOnShowingMoves(tile.getColor()));
@@ -103,7 +106,7 @@ public class EventsListenerDecorator {
                     tile.addPieceLabel(currentlyActivePiece);
                     currentlyActivePiece = null;
                     clearFocusedColorsOnTheBoard();
-                    board.changeTurn();
+                    boardService.changeTurn();
                     gameWindow.repaint();
                 }
             }
@@ -137,7 +140,7 @@ public class EventsListenerDecorator {
     }
 
     private void clearFocusedColorsOnTheBoard() {
-        for (Tile tile : board.getTiles().values()) {
+        for (Tile tile : boardService.getTiles()) {
             tile.setBackground(getTileBackgroundColorOnInit(tile.getColor()));
         }
     }

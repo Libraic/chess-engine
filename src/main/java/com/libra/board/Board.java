@@ -13,7 +13,6 @@ import com.libra.ui.PieceLabel;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.libra.Color.BLACK;
 import static com.libra.Color.WHITE;
@@ -42,6 +41,8 @@ import static com.libra.tile.RowIndex.TWO;
 public class Board {
 
     private final Map<Coordinate, Tile> tiles;
+    private Coordinate whiteKingPosition;
+    private Coordinate blackKingPosition;
     private Color turn;
 
     public Board() {
@@ -311,6 +312,8 @@ public class Board {
         );
 
         turn = WHITE;
+        whiteKingPosition = new Coordinate(E, EIGHT);
+        blackKingPosition = new Coordinate(E, ONE);
     }
 
     public Map<Coordinate, Tile> getTiles() {
@@ -327,5 +330,17 @@ public class Board {
 
     public Color getTurn() {
         return turn;
+    }
+
+    public void setKingPosition(Coordinate position, Color color) {
+        if (color == BLACK) {
+            blackKingPosition = position;
+        } else {
+            whiteKingPosition = position;
+        }
+    }
+
+    public Coordinate getKingPosition(Color color) {
+        return color == WHITE ? whiteKingPosition : blackKingPosition;
     }
 }

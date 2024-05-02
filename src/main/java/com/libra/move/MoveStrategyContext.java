@@ -1,6 +1,7 @@
 package com.libra.move;
 
 import com.libra.piece.Rank;
+import com.libra.service.BoardService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,14 +17,14 @@ public class MoveStrategyContext {
 
     private final Map<Rank, MoveStrategy> moveStrategies;
 
-    public MoveStrategyContext() {
+    public MoveStrategyContext(BoardService boardService) {
         moveStrategies = new HashMap<>();
-        moveStrategies.put(PAWN, new PawnMoveStrategy());
-        moveStrategies.put(ROOK, new RookMoveStrategy());
-        moveStrategies.put(KNIGHT, new KnightMoveStrategy());
-        moveStrategies.put(BISHOP, new BishopMoveStrategy());
-        moveStrategies.put(KING, new KingMoveStrategy());
-        moveStrategies.put(QUEEN, new QueenMoveStrategy());
+        moveStrategies.put(PAWN, new PawnMoveStrategy(boardService));
+        moveStrategies.put(ROOK, new RookMoveStrategy(boardService));
+        moveStrategies.put(KNIGHT, new KnightMoveStrategy(boardService));
+        moveStrategies.put(BISHOP, new BishopMoveStrategy(boardService));
+        moveStrategies.put(KING, new KingMoveStrategy(boardService));
+        moveStrategies.put(QUEEN, new QueenMoveStrategy(boardService));
     }
 
     public MoveStrategy getMoveStrategy(Rank rank) {

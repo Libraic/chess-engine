@@ -1,6 +1,6 @@
 package com.libra.ui;
 
-import com.libra.board.Board;
+import com.libra.service.BoardService;
 import com.libra.tile.Tile;
 
 import javax.swing.BorderFactory;
@@ -21,12 +21,11 @@ import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 public class GameWindow {
 
-    private final Board board;
     private final EventsListenerDecorator eventsListenerDecorator;
-
-    public GameWindow(Board board) {
-        this.board = board;
-        eventsListenerDecorator = new EventsListenerDecorator(board);
+    private final BoardService boardService;
+    public GameWindow(BoardService boardService) {
+        this.boardService = boardService;
+        eventsListenerDecorator = new EventsListenerDecorator(boardService);
     }
 
     public void show() {
@@ -43,7 +42,7 @@ public class GameWindow {
         gameWindow.setDefaultCloseOperation(EXIT_ON_CLOSE);
         gameWindow.setLayout(new GridLayout(NUMBER_OF_ROWS, NUMBER_OF_COLUMNS, ROWS_GAP, COLUMNS_GAP));
 
-        for (Tile tile : board.getTiles().values()) {
+        for (Tile tile : boardService.getTiles()) {
             eventsListenerDecorator.createMouseListenerForPiece(tile.getPieceLabel(), gameWindow);
             eventsListenerDecorator.createMouseListenerForTile(tile, gameWindow);
             gameWindow.add(tile);

@@ -1,8 +1,8 @@
 package com.libra.move;
 
 import com.libra.Color;
-import com.libra.board.Board;
 import com.libra.piece.Piece;
+import com.libra.service.BoardService;
 import com.libra.tile.Coordinate;
 import com.libra.tile.Direction;
 import com.libra.tile.Tile;
@@ -20,19 +20,24 @@ import static com.libra.utils.Constants.SECOND_ELEMENT;
 
 public class BishopMoveStrategy implements MoveStrategy {
 
+    private final BoardService boardService;
+
+    public BishopMoveStrategy(BoardService boardService) {
+        this.boardService = boardService;
+    }
+
     @Override
-    public List<Coordinate> getPossibleMoves(Piece piece, Board board) {
+    public List<Coordinate> getPossibleMoves(Piece piece) {
         List<Coordinate> moves = new ArrayList<>();
-        moves.addAll(getCoordinatesFromOneDirection(piece, board, List.of(UP, RIGHT)));
-        moves.addAll(getCoordinatesFromOneDirection(piece, board, List.of(UP, LEFT)));
-        moves.addAll(getCoordinatesFromOneDirection(piece, board, List.of(DOWN, RIGHT)));
-        moves.addAll(getCoordinatesFromOneDirection(piece, board, List.of(DOWN, LEFT)));
+        moves.addAll(getCoordinatesFromOneDirection(piece, List.of(UP, RIGHT)));
+        moves.addAll(getCoordinatesFromOneDirection(piece, List.of(UP, LEFT)));
+        moves.addAll(getCoordinatesFromOneDirection(piece, List.of(DOWN, RIGHT)));
+        moves.addAll(getCoordinatesFromOneDirection(piece, List.of(DOWN, LEFT)));
         return moves;
     }
 
     private List<Coordinate> getCoordinatesFromOneDirection(
         Piece piece,
-        Board board,
         List<Direction> directions
     ) {
         List<Coordinate> moves = new ArrayList<>();
@@ -48,7 +53,11 @@ public class BishopMoveStrategy implements MoveStrategy {
                 directions.get(SECOND_ELEMENT)
             );
 
-            Tile diagonalTile = board.getTileByCoordinate(diagonalMove);
+            if (diagonalMove.equals(linearMove)) {
+                break;
+            }
+
+            Tile diagonalTile = boardService.getTileByCoordinate(diagonalMove);
             if (diagonalTile.isAvailableForAttack(color)) {
                 moves.add(diagonalMove);
                 break;
