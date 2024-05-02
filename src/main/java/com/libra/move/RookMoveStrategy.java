@@ -30,6 +30,7 @@ public class RookMoveStrategy implements MoveStrategy {
         List<Coordinate> moves = new ArrayList<>();
         Coordinate currentCoordinate = piece.getCoordinate();
         Coordinate stopCoordinate = Coordinate.getStopCoordinate(direction);
+        // TODO: Change while(true) loop for a classic for
         while (true) {
             currentCoordinate = currentCoordinate.movePieceAccordingToDirection(piece.getColor(), direction);
             Tile currentTile = board.getTileByCoordinate(currentCoordinate);

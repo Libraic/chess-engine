@@ -23,6 +23,7 @@ public class Constants {
     public static final int SECOND_ELEMENT = 1;
     public static final int THIRD_ELEMENT = 2;
     public static final int FOURTH_ELEMENT = 3;
+    public static final int MAX_NUMBER_OF_MOVEMENTS = 7;
 
     /**
      * String constants.
