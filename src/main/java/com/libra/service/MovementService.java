@@ -16,10 +16,6 @@ public class MovementService {
         return currentlyActivePiece;
     }
 
-    public Tile getCurrentlyActiveTile() {
-        return currentlyActiveTile;
-    }
-
     public List<Coordinate> getCurrentlyActivePiecePossibleMoves() {
         return currentlyActivePiecePossibleMoves;
     }
