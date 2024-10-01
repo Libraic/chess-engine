@@ -3,10 +3,12 @@ package com.libra.move;
 import com.libra.Color;
 import com.libra.piece.Piece;
 import com.libra.service.BoardService;
+import com.libra.service.LoggerService;
 import com.libra.tile.Coordinate;
 import com.libra.tile.Direction;
 import com.libra.tile.Tile;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +32,7 @@ public class QueenMoveStrategy implements MoveStrategy {
     // TODO: Review Performance
     @Override
     public List<Coordinate> getPossibleMoves(Piece piece) {
+        LoggerService.info(String.format("Get possible moves for %s %s", piece.getColor(), piece.getRank()));
         Set<Coordinate> moves = new HashSet<>();
         moves.addAll(getCoordinatesFromOneDiagonalDirection(piece, List.of(UP, RIGHT)));
         moves.addAll(getCoordinatesFromOneDiagonalDirection(piece, List.of(UP, LEFT)));
@@ -39,7 +42,7 @@ public class QueenMoveStrategy implements MoveStrategy {
         moves.addAll(getCoordinatesFromOneLinearDirection(piece, DOWN));
         moves.addAll(getCoordinatesFromOneLinearDirection(piece, LEFT));
         moves.addAll(getCoordinatesFromOneLinearDirection(piece, RIGHT));
-        return moves.stream().toList();
+        return new ArrayList<>(moves);
     }
 
     private Set<Coordinate> getCoordinatesFromOneLinearDirection(
@@ -49,7 +52,7 @@ public class QueenMoveStrategy implements MoveStrategy {
         Set<Coordinate> moves = new HashSet<>();
         Coordinate currentCoordinate = piece.getCoordinate();
         Coordinate stopCoordinate = Coordinate.getStopCoordinate(direction);
-        while (true) {
+        for (int i = 0; i < MAX_NUMBER_OF_MOVEMENTS; ++i) {
             currentCoordinate = currentCoordinate.movePieceAccordingToDirection(piece.getColor(), direction);
             Tile currentTile = boardService.getTileByCoordinate(currentCoordinate);
             if (stopCoordinate.equalsByColumnOrRowIndex(currentCoordinate) ||
@@ -59,7 +62,7 @@ public class QueenMoveStrategy implements MoveStrategy {
                 break;
             }
 
-            if (!currentTile.isTileAvailable()) {
+            if (!currentTile.isTileAvailableForSelectedPiece()) {
                 break;
             }
 
@@ -98,7 +101,7 @@ public class QueenMoveStrategy implements MoveStrategy {
 
             if (linearMove.equals(currentCoordinate) ||
                 diagonalMove.equals(linearMove) ||
-                !diagonalTile.isTileAvailable()
+                !diagonalTile.isTileAvailableForSelectedPiece()
             ) {
                 break;
             }

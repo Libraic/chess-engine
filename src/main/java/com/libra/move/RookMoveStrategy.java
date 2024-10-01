@@ -47,7 +47,7 @@ public class RookMoveStrategy implements MoveStrategy {
                 break;
             }
 
-            if (!currentTile.isTileAvailable()) {
+            if (!currentTile.isTileAvailableForSelectedPiece()) {
                 break;
             }
 

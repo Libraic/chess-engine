@@ -59,6 +59,10 @@ public final class Tile extends JPanel {
     }
 
     public boolean isTileCoordinatesInPossibleMoves(List<Coordinate> possibleMoves) {
+        if (possibleMoves == null) {
+            return false;
+        }
+
         for (Coordinate possibleMove : possibleMoves) {
             if (coordinate.equals(possibleMove)) {
                 return true;
@@ -68,15 +72,15 @@ public final class Tile extends JPanel {
         return false;
     }
 
-    public boolean isTileAvailable(PieceLabel pieceLabel) {
+    public boolean isTileAvailableForSelectedPiece(PieceLabel pieceLabel) {
         if (pieceLabel == null) {
             return false;
         }
-        return (availability == TAKEN && pieceLabel.getPiece().getColor() != pieceLabel.getPiece().getColor()) ||
+        return (availability == TAKEN && pieceLabel.getPiece().getColor() != this.pieceLabel.getPiece().getColor()) ||
             availability == FREE;
     }
 
-    public boolean isTileAvailable() {
+    public boolean isTileAvailableForSelectedPiece() {
         return availability == FREE;
     }
 
@@ -85,7 +89,7 @@ public final class Tile extends JPanel {
     }
 
     public boolean isAvailableToTakeOrToAttack(Color color) {
-        return isTileAvailable() || isAvailableForAttack(color);
+        return isTileAvailableForSelectedPiece() || isAvailableForAttack(color);
     }
 
     private java.awt.Color getTileBackgroundColorOnInit() {

@@ -44,7 +44,7 @@ public class KingMoveStrategy implements MoveStrategy {
             Coordinate currentMove = previousMove.movePieceAccordingToDirection(color, direction);
             Tile currentTile = boardService.getTileByCoordinate(currentMove);
             if (!currentMove.equals(previousMove) &&
-                (currentTile.isTileAvailable() || currentTile.isAvailableForAttack(color))
+                (currentTile.isTileAvailableForSelectedPiece() || currentTile.isAvailableForAttack(color))
             ) {
                 moves.add(currentMove);
             }

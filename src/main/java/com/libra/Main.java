@@ -8,8 +8,7 @@ import com.libra.ui.GameWindow;
 public class Main {
     public static void main(String[] args) {
         BoardService boardService = new BoardService(new Board());
-        ColorService colorService = new ColorService();
-        GameWindow gameWindow = new GameWindow(boardService, colorService);
+        GameWindow gameWindow = new GameWindow(boardService);
         gameWindow.show();
     }
 }

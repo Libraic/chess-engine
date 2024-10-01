@@ -38,13 +38,13 @@ public class PawnMoveStrategy implements MoveStrategy {
         }
 
         Coordinate firstMove = piece.getCoordinate().up(color);
-        if (boardService.getTileByCoordinate(firstMove).isTileAvailable()) {
+        if (boardService.getTileByCoordinate(firstMove).isTileAvailableForSelectedPiece()) {
             possibleMoves.add(firstMove);
         }
 
         if (pawn.isWasFirstMoveMade()) {
             Coordinate nextMove = firstMove.up(color);
-            if (boardService.getTileByCoordinate(nextMove).isTileAvailable()) {
+            if (boardService.getTileByCoordinate(nextMove).isTileAvailableForSelectedPiece()) {
                 possibleMoves.add(nextMove);
             }
         }

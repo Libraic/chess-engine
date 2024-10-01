@@ -65,7 +65,7 @@ public class BishopMoveStrategy implements MoveStrategy {
 
             if (linearMove.equals(currentCoordinate) ||
                 diagonalMove.equals(linearMove) ||
-                !diagonalTile.isTileAvailable()
+                !diagonalTile.isTileAvailableForSelectedPiece()
             ) {
                 break;
             }

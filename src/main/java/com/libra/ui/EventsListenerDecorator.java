@@ -5,6 +5,8 @@ import com.libra.move.MoveStrategyContext;
 import com.libra.piece.Rank;
 import com.libra.service.BoardService;
 import com.libra.service.ColorService;
+import com.libra.service.LoggerService;
+import com.libra.service.MovementService;
 import com.libra.tile.Coordinate;
 import com.libra.tile.Tile;
 
@@ -20,16 +22,12 @@ public class EventsListenerDecorator {
     private final MoveStrategyContext moveStrategyContext;
     private final BoardService boardService;
     private final ColorService colorService;
-    private PieceLabel currentlyActivePiece;
-    private Tile currentlyActiveTile;
-    private List<Coordinate> currentlyActivePiecePossibleMoves;
+    private final MovementService movementService;
 
-    public EventsListenerDecorator(
-        BoardService boardService,
-        ColorService colorService
-    ) {
+    public EventsListenerDecorator(BoardService boardService) {
         this.boardService = boardService;
-        this.colorService = colorService;
+        this.colorService = new ColorService();
+        this.movementService = new MovementService();
         moveStrategyContext = new MoveStrategyContext(boardService);
     }
 
@@ -72,11 +70,14 @@ public class EventsListenerDecorator {
         tile.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                LoggerService.info("A tile was clicked.");
+                List<Coordinate> currentlyActivePiecePossibleMoves = movementService
+                    .getCurrentlyActivePiecePossibleMoves();
+                PieceLabel currentlyActivePiece = movementService.getCurrentlyActivePiece();
                 if (tile.isTileCoordinatesInPossibleMoves(currentlyActivePiecePossibleMoves) &&
-                    tile.isTileAvailable(currentlyActivePiece)
+                    tile.isTileAvailableForSelectedPiece(currentlyActivePiece)
                 ) {
-                    currentlyActiveTile.removePieceLabel();
-                    currentlyActiveTile = null;
+                    movementService.removePieceLabelOfCurrentlyActiveTile();
                     currentlyActivePiece.getPiece().setCoordinate(tile.getCoordinate());
                     if (currentlyActivePiece.getPiece().getRank() == Rank.KING) {
                         boardService.setKingPositionBasedOnColor(
@@ -86,7 +87,7 @@ public class EventsListenerDecorator {
                     }
                     handleCheck();
                     tile.addPieceLabel(currentlyActivePiece);
-                    currentlyActivePiece = null;
+                    movementService.setCurrentlyActivePiece(null);
                     colorService.clearFocusedColorsOnTheBoard(boardService.getTiles());
                     boardService.changeTurn();
                     gameWindow.repaint();
@@ -114,40 +115,44 @@ public class EventsListenerDecorator {
     }
 
     private void handleCaptureMove(Tile tile, JFrame gameWindow) {
-        if (!currentlyActivePiecePossibleMoves.contains(tile.getCoordinate())) {
+        if (!movementService.getCurrentlyActivePiecePossibleMoves().contains(tile.getCoordinate())) {
             return;
         }
-        currentlyActiveTile.removePieceLabel();
-        currentlyActiveTile = null;
-        currentlyActivePiece.getPiece().setCoordinate(tile.getCoordinate());
+
+        movementService.removePieceLabelOfCurrentlyActiveTile();
+        movementService.setCoordinateOfCurrentlyActivePiece(tile.getCoordinate());
         tile.removePieceLabel();
-        tile.addPieceLabel(currentlyActivePiece);
-        currentlyActivePiece = null;
+        tile.addPieceLabel(movementService.getCurrentlyActivePiece());
+        movementService.setCurrentlyActivePiece(null);
         colorService.clearFocusedColorsOnTheBoard(boardService.getTiles());
         boardService.changeTurn();
-        currentlyActivePiecePossibleMoves.clear();
+        movementService.clearMoves();
         gameWindow.repaint();
     }
 
     private void handlePieceSelection(PieceLabel pieceLabel, Tile tile) {
+        LoggerService.info(String.format("%s %s was selected.", pieceLabel.getPiece().getColor(), pieceLabel.getPiece().getRank()));
         colorService.clearFocusedColorsOnTheBoard(boardService.getTiles());
-        currentlyActivePiecePossibleMoves = moveStrategyContext
+        movementService.setCurrentlyActivePiecePossibleMoves(moveStrategyContext
             .getMoveStrategy(pieceLabel.getPiece().getRank())
-            .getPossibleMoves(pieceLabel.getPiece());
-        for (Coordinate move : currentlyActivePiecePossibleMoves) {
+            .getPossibleMoves(pieceLabel.getPiece())
+        );
+        for (Coordinate move : movementService.getCurrentlyActivePiecePossibleMoves()) {
             Tile potentialTile = boardService.getTileByCoordinate(move);
             potentialTile.setBackground(colorService.getTileBackgroundColorOnShowingMoves(potentialTile.getColor()));
         }
         tile.setBackground(colorService.getTileBackgroundColorOnShowingMoves(tile.getColor()));
-        currentlyActivePiece = pieceLabel;
-        currentlyActiveTile = tile;
+        movementService.setCurrentlyActivePiece(pieceLabel);
+        movementService.setCurrentlyActiveTile(tile);
     }
 
     private void handleCheck() {
+        System.out.println("Potential future moves");
         List<Coordinate> potentialFutureMoves = moveStrategyContext
-            .getMoveStrategy(currentlyActivePiece.getPiece().getRank())
-            .getPossibleMoves(currentlyActivePiece.getPiece());
-        Coordinate kingPosition = boardService.getKingPositionBasedOnColor(currentlyActivePiece.getPieceColor());
+            .getMoveStrategy(movementService.getCurrentlyActivePiece().getPiece().getRank())
+            .getPossibleMoves(movementService.getCurrentlyActivePiece().getPiece());
+        System.out.println("Finished Potential future moves");
+        Coordinate kingPosition = boardService.getKingPositionBasedOnColor(movementService.getCurrentlyActivePiece().getPieceColor());
         Tile tile = boardService.getTileByCoordinate(kingPosition);
         tile.setBackground(colorService.getTileBackgroundColorOnCheckOrClear(
             potentialFutureMoves.contains(kingPosition),
